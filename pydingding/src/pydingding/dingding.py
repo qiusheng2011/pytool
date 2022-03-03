@@ -94,4 +94,3 @@ class DingDingGroupRobot(BaseModel):
                         return False, data["errmsg"]
                 else:
                     return False, text
-
