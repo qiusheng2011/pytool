@@ -1,8 +1,20 @@
+from enum import Enum, unique
+from typing import List
+import time
+from urllib import parse
 
 from pydantic import BaseModel
-from typing import List
 import aiohttp
+import hmac
+import base64
+from hashlib import sha256
 
+
+@unique
+class DingRobotSecuritySetting(Enum):
+    KEYWORD = 0
+    IPLIMIT = 1
+    TIMESTAMPSIGN = 2
 
 class BasicMessage(BaseModel):
 
@@ -78,12 +90,20 @@ class DingDingGroupRobot(BaseModel):
     """ 钉钉群聊机器人 """
     baseurl: str = ""
     access_token: str = ""
+    secret: str = ""
+    security_setting: DingRobotSecuritySetting  = DingRobotSecuritySetting.IPLIMIT
 
     async def async_send_group_message(self, msgobj: BasicMessage):
-
         async with aiohttp.ClientSession() as session:
-
-            async with session.post(f"{self.baseurl}/robot/send", params={"access_token": self.access_token}, json=msgobj.dict()) as response:
+            
+            parms = {"access_token": self.access_token}
+            if self.security_setting == DingRobotSecuritySetting.TIMESTAMPSIGN:
+                if not self.secret:
+                    return False, "密钥为空,无法签名"
+                timestamp, sign = self._make_security_sign()
+                parms["timestamp"] = str(timestamp)
+                parms["sign"] = sign
+            async with session.post(f"{self.baseurl}/robot/send", params=parms, json=msgobj.dict()) as response:
                 text = await response.text()
 
                 if response.status == 200:
@@ -94,3 +114,12 @@ class DingDingGroupRobot(BaseModel):
                         return False, data["errmsg"]
                 else:
                     return False, text
+    
+    def _make_security_sign(self):
+        timestamp = int(time.time()* 1000)
+        if not self.secret:
+            return ""
+        str_to_sign = f"{timestamp}\n{self.secret}"
+        content_sign = hmac.new(self.secret.encode("utf8"), str_to_sign.encode("utf8"), digestmod=sha256).digest()
+        signature = base64.b64encode(content_sign)
+        return timestamp,parse.quote_plus(signature)

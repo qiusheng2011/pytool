@@ -1,15 +1,18 @@
 
 from unittest import TestCase
-from dingding.dingding import DingDingGroupRobot, TextMessage, LinkMessage, MarkdownMessage, BasicMessage, ActionCardMessage, MultiActionCardMessage
+from pydingding.src.pydingding.dingding import DingDingGroupRobot, TextMessage, LinkMessage, MarkdownMessage, BasicMessage, ActionCardMessage, MultiActionCardMessage, DingRobotSecuritySetting
 import asyncio
 
-
+# https://oapi.dingtalk.com/robot/send?access_token=b14c5294ea99127014bf828c6a7528763539ee594b64fb34e43f30eb891f6898
 class DingDingGroupRobotUnittest(TestCase):
 
     def setUp(self) -> None:
         self.baseurl = "https://oapi.dingtalk.com"
         self.access_token = "a6a968e78f9052a2284066589babd470d4d1eafd89d16fd9ff41622879c3cd31"
         self.group_robot = DingDingGroupRobot(baseurl=self.baseurl, access_token=self.access_token)
+        
+        self.access_token2 = "b14c5294ea99127014bf828c6a7528763539ee594b64fb34e43f30eb891f6898"
+        self.group_robot = DingDingGroupRobot(baseurl=self.baseurl, access_token=self.access_token2, security_setting=DingRobotSecuritySetting.TIMESTAMPSIGN, secret='SEC5aac05ec3ffcb1f0f866e9c97538af54f7ff4a2bf7b823c66ae25478959f04ef')
         self.loop = asyncio.get_event_loop()
         return super().setUp()
 
