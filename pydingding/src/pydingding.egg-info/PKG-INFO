@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pydingding
-Version: 0.0.2
+Version: 0.0.3
 Summary: 钉钉开放功能对接使用库
 Home-page: http://www.dingding.com
 Author: gxz
@@ -14,5 +14,5 @@ Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-UNKNOWN
+
 
